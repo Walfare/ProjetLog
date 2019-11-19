@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#Fonctionnel
+
 #Verification qu'un fichier est donné en paramètre
 if (($# ==  0));then
 	echo "Aucun fichier passé en paramètre."
