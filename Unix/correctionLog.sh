@@ -6,59 +6,54 @@ FormaterApache(){
 	FichierTemp="tmp1"
 	#Unicité, retrait des crochets, des guillements et des premiers ':' puis formatage
 	uniq $FichierLog| sed -e 's/\[/ /g' | sed -e 's/\]/ /g' | sed -e "s/\"//g" | sed -e 's/:/ /1' | \
-	awk '
-		function FormaterDate(var){
-			split(var,tab, "/" );
-			jour=tab[1]
-			mois=tab[2]
-			annee=tab[3]
-			if (mois == "Jan")
-				{mois="01"}
-			else if ( mois == "Feb" )
-				{mois="02"}
-			else if ( mois == "Mar" )
-				{mois="03"}
-			else if ( mois == "Apr" )
-				{mois="04"}
-			else if ( mois == "May" )
-				{mois="05"}
-			else if ( mois == "Jun" )
-				{mois="06"}
-			else if ( mois == "Jul" )
-				{mois="07"}
-			else if ( mois == "Aug" )
-				{mois="08"}
-			else if ( mois == "Sep" )
-				{mois="09"}
-			else if ( mois == "Oct" )	
-				{mois="10"}
-			else if ( mois == "Nov" )
-				{mois="11"}
-			else if ( mois == "Dec" )
-				{mois="12"}
-			else 
-				{mois="erreur"}
-			result = sprintf("%s%s%s%s%s", annee, "/", mois, "/", jour)
+	awk '{
+		split($4,tab, "/" );
+		jour=tab[1]
+		mois=tab[2]
+		annee=tab[3]
+		if (mois == "Jan")
+			{mois="01"}
+		else if ( mois == "Feb" )
+			{mois="02"}
+		else if ( mois == "Mar" )
+			{mois="03"}
+		else if ( mois == "Apr" )
+			{mois="04"}
+		else if ( mois == "May" )
+			{mois="05"}
+		else if ( mois == "Jun" )
+			{mois="06"}
+		else if ( mois == "Jul" )
+			{mois="07"}
+		else if ( mois == "Aug" )
+			{mois="08"}
+		else if ( mois == "Sep" )
+			{mois="09"}
+		else if ( mois == "Oct" )	
+			{mois="10"}
+		else if ( mois == "Nov" )
+			{mois="11"}
+		else if ( mois == "Dec" )
+			{mois="12"}
+		else 
+			{mois="erreur"}
 
-			return result
-		}
-		function Navigateur(var){
-			if (index(var,"Mozilla")) {
-				var="Mozilla"
-			}
-			else if(index(var,"Chrome")){
-				var="Chrome"
-			}
-			else if(index(var,"Netscape")){
-				var="Netscape"
-			}
-			else{
-				var="erreur"
-			}
+		date = sprintf("%s%s%s%s%s", annee, "/", mois, "/", jour)
 
-			return var
+		if (index($13,"Mozilla")) {
+			navigateur="Mozilla"
 		}
-		{print $1, FormaterDate($4), $5, $12, $10, $11, $8, $17, Navigateur($13)}' \
+		else if(index($13,"Chrome")){
+			navigateur="Chrome"
+		}
+		else if(index($13,"Netscape")){
+			navigateur="Netscape"
+		}
+		else{
+			navigateur="erreur"
+		}
+
+		{print $1, date, $5, $12, $10, $11, $8, $17, navigateur}}' \
 		>$FichierTemp	
 }
 
