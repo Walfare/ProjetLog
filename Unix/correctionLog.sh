@@ -62,10 +62,10 @@ CorrectionApache(){
 	FichierFinal="FinalApache"
 	#IP au format xxx.xxx.xxx.xxx ou x est un chiffre de 0 à 9
 	#Date au format yyyy/MM/dd ou l'année commence par 1 ou 2
-	#Code HTTP au format xxx ou x est un chiffre entre 0 et 9
+	#Code HTTP au format xxx ou le premier x doit être un 4 ou un 5 puis entre 0 et 9
 	awk '$1 ~ /[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?/' $FichierTemp \
 	| awk '$2 ~ /[1-2][0-9][0-9][0-9]\/[0-9][0-9]?\/[0-9][0-9]?/' \
-	| awk '$6 ~ /[0-9][0-9][0-9]/'>$FichierFinal
+	| awk '$6 ~ /[4-5][0-9][0-9]/'>$FichierFinal
 }
 
 #Verification qu'un fichier est donné en paramètre
