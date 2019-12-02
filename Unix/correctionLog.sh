@@ -53,7 +53,7 @@ FormaterApache(){
 			navigateur="erreur"
 		}
 
-		{print $1, date, $5, $12, $10, $11, $8, $17, navigateur}}' \
+		{print $1, date, $5, $12, $10, $11, $8, navigateur, $17}}' \
 		>$FichierTemp	
 }
 
