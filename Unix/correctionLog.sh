@@ -53,7 +53,7 @@ FormaterApache(){
 			navigateur="erreur"
 		}
 
-		{print $1, date, $5, $12, $10, $11, $8, $17, navigateur}}' \
+		{print $1, date, $5, $12, $10, $11, $8, navigateur, $17}}' \
 		>$FichierTemp	
 }
 
@@ -66,6 +66,7 @@ CorrectionApache(){
 	awk '$1 ~ /[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?/' $FichierTemp \
 	| awk '$2 ~ /[1-2][0-9][0-9][0-9]\/[0-9][0-9]?\/[0-9][0-9]?/' \
 	| awk '$6 ~ /[0-9][0-9][0-9]/'>$FichierFinal
+	 printf "%b\n" >> $FichierFinal
 }
 
 #Verification qu'un fichier est donné en paramètre

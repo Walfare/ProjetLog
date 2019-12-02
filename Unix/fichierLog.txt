@@ -1,2 +1,6 @@
 194.117.220.40 - - [28/Feb/2002:14:41:42 +0100] "GET / HTTP/1.0" 200 907 "-" "Mozilla/4.0 (compatible; MSIE 4.01; Windows NT)"
 194.117.220.40 - - [28/Feb/2002:14:41:42 +0100] "GET / HTTP/1.0" 200 907 "-" "Mozilla/4.0 (compatible; MSIE 4.01; Windows NT)"
+194.117.220.40 - - [28/Feb/2002:14:41:42 +0100] "GET / HTTP/1.0" 200 907 "-" "Mozilla/4.0 (compatible; MSIE 4.01; Windows NT)"
+194.17.220.40 - - [28/Jan/2002:14:41:42 +0100] "GET / HTTP/1.0" 200 907 "-" "Mozilla/4.0 (compatible; MSIE 4.01; Windows NT)"
+154.117.220.40 - - [10/Feb/2002:14:41:42 +0100] "GET / HTTP/1.0" 200 907 "http://www.google.fr" "Mozilla/4.0 (compatible; MSIE 4.01; Windows NT)"
+132.117.220.40 - - [1/Feb/2002:14:41:42 +0100] "GET /styles/layout2col/css HTTP/1.0" 200 907 "http://www.metagenia.com" "Mozilla/4.0 (compatible; MSIE 4.01; Windows NT)"
