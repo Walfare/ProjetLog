@@ -1,3 +1,5 @@
+
+ 
 #! /bin/bash
 ######################################
 ##### Declaration des fonctions ######
@@ -80,19 +82,24 @@ OrdonnerColonnes(){
 	done
 	sort $FichierLog | tr -d '\r' | uniq >$FichierTemporaire2
 	awk "{ print $PositionIP,$PositionDate,$PositionInstant,$PositionCodeHTTP,$PositionTaille,$PositionSource,$PositionNaviOS,$PositionURI}" $FichierTemporaire2>$FichierTemporaire1
+
 }
 
 #CorrectionsIIS - effectue les corrections pour un format IIS
 CorrectionsIIS(){
 #Suppression mauvaises dates | Suppression mauvais codes retour HTTP | Suppression mauvaises IP
+				
+
 	awk '$2 ~ /[1-2][0-9][0-9][0-9]-[0-9][0-9]?-[0-9][0-9]?/ && $2 !~ /[1-2][0-9][0-9][0-9]-[0-9][0-9]?-[0-9][0-9]./' $FichierTemporaire1 \
 	| awk '$4 ~ /[0-9][0-9][0-9]/ && $4 !~ /[0-9][0-9][0-9]./' \
 	| awk '$1 ~ /[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?/ && $1 !~/[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9][0-9]./'>$FichierTemporaire2
+cat $FichierTemporaire2
 }
 
 #FormaterIIS - formate a partir d'un format IIS
 FormaterIIS(){
 	awk '{if ($7 ~ /.*[m,M]ozilla.*/) print $1,$2,$3,$4,$5,$6,$7,$8,"Mozilla" ; else if ($7 ~ /.*[c,C]hrome.*/) print $1,$2,$3,$4,$5,$6,$7,$8,"Chrome" ; else if ($7 ~ /.*[s,S]afari.*/) print $1,$2,$3,$4,$5,$6,$7,$8,"Safari" ; else print $1,$2,$3,$4,$5,$6,$7,$8,"Navigateur_Inconnu"}' $FichierTemporaire2>$FichierTemporaire1
+	cat $FichierTemporaire1
 	awk 'BEGIN {print "IP Date Instant Code Taille Source URI Systeme Navigateur"} ; {if ($7 ~ /.*[w,W]indows.*/) print $1,$2,$3,$4,$5,$6,$8,"Windows",$9 ; else if ($7 ~ /.*[l,L]inux.*/) print $1,$2,$3,$4,$5,$6,$8,"Linux",$9 ; else if ($7 ~ /.*[m,M]ac.*/) print $1,$2,$3,$4,$5,$6,$8,"Mac",$9 ; else print $1,$2,$3,$4,$5,$6,$8,"Systeme_Inconnu",$9}' $FichierTemporaire1>$FichierTemporaire2
 }
 
@@ -104,11 +111,9 @@ SupprimerColonnesInutiles(){
 		sort $FichierLog | uniq | sed -e 's/\[/ /g' | sed -e 's/:/ /1' | \
 	    awk '
 		function FormatDateAPP(var){
-
 			awk split(var,tabDate, "/" );
 			jour=tabDate[1]
 			mois=tabDate[2]
-
 			if (mois == "Jan"){mois="01"}
 			else if ( mois == "Feb" ){mois="02"}
 			else if ( mois == "Mar" ){mois="03"}
@@ -122,13 +127,10 @@ SupprimerColonnesInutiles(){
 			else if ( mois == "Nov" ){mois="11"}
 			else if ( mois == "Dec" ){mois="12"}
 			else {mois="INCONNU"}
-
 			annee=tabDate[3]
 			anneeComplete = sprintf("%s%s%s%s%s", annee, "-", mois, "-", jour)
-
 			return anneeComplete
 		}
-
 		function DeleteQuote(var){
 			if(var== "-"){
 				var = "INCONNU"
@@ -136,10 +138,8 @@ SupprimerColonnesInutiles(){
 			else{
 				awk gsub(/"/,"",var)
 			}
-
 			return var
 		}
-
 		function GetBrowser(var){
 			if (index(var,"Mozilla")) {
 				var="Mozilla"
@@ -153,10 +153,8 @@ SupprimerColonnesInutiles(){
 			else{
 				var="INCONNU"
 			}
-
 			return var
 		}
-
 		function GetSystem(var){
 			if (index(var,"Windows")) {
 				var="Windows"
@@ -172,7 +170,6 @@ SupprimerColonnesInutiles(){
 			}
 			return var
 		}
-
 		BEGIN {print "IP Date Instant Code Taille URL CHEMIN_URL Systeme Navigateur"};
 		{print $1, FormatDateAPP($4), $5, $10, $11, DeleteQuote($12), $8, GetBrowser($13), $17 }' \
 		>$FichierTemporaire1
