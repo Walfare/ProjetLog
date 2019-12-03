@@ -1,5 +1,102 @@
 #!/bin/bash
 
+#Verification que le champs passé existe
+VerifCurrentField(){
+	exist=$(grep $currentField $FichierLog)
+	if [ -z "$exist" ]
+	then
+		echo "Erreur champs: "$currentField
+		exit 4
+	fi
+}
+
+#Calcul de la position du champs
+Position(){
+	subSection=$(echo $mainLine | grep -o "$1.*" )
+	nbFieldSubSection=$(echo $subSection | grep -o "%" | wc -l)
+	returnPosition="$"$(($NbFields-$nbFieldSubSection+1))
+}
+
+#Détermination du type de fichier passé (app/iis) en vérifiant la 1ère ligne du fichier puis si fichier de IIS vérification des champs nécessaire et détermination de leur position
+VerifTypeLog(){
+        echo "Vérification du type de fichier..."
+	mainLine=$(grep '^#Fields' $FichierLog)
+	NbFields=$(echo $mainLine | grep -o "%" | wc -l)
+	if [ -z "$mainLine" ]
+	then
+		iis="false"
+		echo "Fichier Apache"
+	else
+		for currentField in '%date' '%time' '%c-ip' '%sc-bytes' '%cs-uri-stem' '%sc-status' '%cs(User-Agent)'  '%cs(Referer)'
+		do 
+			VerifCurrentField $FichierLog
+		done
+		Position '%date'
+		date=$returnPosition
+		Position '%time'
+		instant=$returnPosition
+		Position '%c-ip'
+		ip=$returnPosition
+		Position '%cs(User-Agent)'
+		naviOS=$returnPosition
+		Position '%sc-status'
+		codeHTTP=$returnPosition
+		Position '%sc-bytes'
+		size=$returnPosition
+		Position '%cs(Referer)'
+		csReferer=$returnPosition
+        	Position '%cs-uri-stem'
+        	URI=$returnPosition
+		
+		iis="true"
+		echo "Fichier IIS"
+	fi
+}
+
+#Formatage et correction d'un fichier IIS
+TraiterIIS(){
+	FichierTemp1="tmpIIS1"
+	FichierTemp2="tmpIIS2"
+	
+	#Unicité et retrait des retours à la ligne
+	uniq $FichierLog | tr -d '\r' >$FichierTemp1
+  
+	#Tri des champs selon la norme IP Date Instant Url Taille Code Chemin Systeme Navigateur
+	awk "{ print $ip,$date,$instant,$URI,$size,$codeHTTP,$csReferer,$naviOS}" $FichierTemp1>$FichierTemp2
+
+	#IP au format xxx.xxx.xxx.xxx ou x est un chiffre de 0 à 9
+	#Date au format yyyy/MM/dd ou l'année commence par 1 ou 2
+	#Code HTTP au format xxx ou x est un chiffre entre 0 et 9
+	awk '$1 ~ /[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?/' $FichierTemp2 \
+	| awk '$2 ~ /[1-2][0-9][0-9][0-9]-[0-9][0-9]?-[0-9][0-9]?/' \
+	| awk '$6 ~ /[0-9][0-9][0-9]/' >$FichierTemp1
+
+	#Recherche du navigateur dans le champs naviOS
+	awk '{
+		if ($8 ~ /.*[m,M]ozilla.*/) 
+			{print $1,$2,$3,$4,$5,$6,$7,$8,"Mozilla"}
+		else if ($8 ~ /.*[c,C]hrome.*/) 
+			{print $1,$2,$3,$4,$5,$6,$7,$8,"Chrome" }
+		else if ($8 ~ /.*[s,S]afari.*/) 
+			{print $1,$2,$3,$4,$5,$6,$7,$8,"Safari" } 
+		else 
+			{print $1,$2,$3,$4,$5,$6,$7,$8,"erreur"}}' $FichierTemp1>$FichierTemp2
+
+	#Recherche de l'os dans le champs naviOS
+   	awk '{
+		if ($8 ~ /.*[w,W]indows.*/) 
+			{print $1,$2,$3,$4,$5,$6,$7,"Windows", $9 }
+		else if ($8 ~ /.*[l,L]inux.*/) 
+			{print $1,$2,$3,$4,$5,$6,$7,"Linux", $9 } 
+		else if ($8 ~ /.*[m,M]ac.*/) 
+			{print $1,$2,$3,$4,$5,$6,$7,"Mac",$9 }
+		else 
+			{print $1,$2,$3,$4,$5,$6,$7,"erreur",$9}}' $FichierTemp2>$FichierTemp1
+		
+
+}
+
+
 #Formatage du format Apache pour que le fichier de sortie contienne dans cet ordre: IP Date Instant Url Taille Code Chemin Systeme Navigateur
 FormaterApache(){
 	#Fichier de retour
@@ -37,37 +134,32 @@ FormaterApache(){
 			{mois="12"}
 		else 
 			{mois="erreur"}
-
 		date = sprintf("%s%s%s%s%s", annee, "/", mois, "/", jour)
-
 		if (index($13,"Mozilla")) {
 			navigateur="Mozilla"
 		}
 		else if(index($13,"Chrome")){
 			navigateur="Chrome"
 		}
-		else if(index($13,"Netscape")){
-			navigateur="Netscape"
+		else if(index($13,"Safari")){
+			navigateur="Safari"
 		}
 		else{
 			navigateur="erreur"
 		}
-
-		{print $1, date, $5, $12, $10, $11, $8, navigateur, $17}}' \
+		{print $1, date, $5, $12, $10, $11, $8, $17, navigateur}}' \
 		>$FichierTemp	
 }
 
 #Suppression des lignes ayant une IP, date ou un code erroné
 CorrectionApache(){
-	FichierFinal="FinalApache"
+	FinalApache="FinalApache"
 	#IP au format xxx.xxx.xxx.xxx ou x est un chiffre de 0 à 9
 	#Date au format yyyy/MM/dd ou l'année commence par 1 ou 2
-	#Code HTTP au format xxx ou le premier x doit être un 4 ou un 5 puis entre 0 et 9
+	#Code HTTP au format xxx ou x est un chiffre entre 0 et 9
 	awk '$1 ~ /[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?/' $FichierTemp \
 	| awk '$2 ~ /[1-2][0-9][0-9][0-9]\/[0-9][0-9]?\/[0-9][0-9]?/' \
-	| awk '$6 ~ /[0-9][0-9][0-9]/'>$FichierFinal
-	 printf "%b\n" >> $FichierFinal
-
+	| awk '$6 ~ /[0-9][0-9][0-9]/'>$FinalApache
 }
 
 #Verification qu'un fichier est donné en paramètre
@@ -95,5 +187,33 @@ if (($? != 0));then
 	exit 3
 fi
 
-FormaterApache
-CorrectionApache
+#Création du répertoire et du fichier final puis appel des fonctions 
+Execution(){
+	
+	Annee=$(date +%Y)
+	Mois=$(date +%m)
+	Jour=$(date +%d)
+	FichierFinal=$Annee"-"$Mois"-"$Jour
+	mkdir -p $Annee"/"$Mois
+
+	VerifTypeLog
+
+	if [ $iis = "true" ]
+	then
+		TraiterIIS
+		mv $FichierTemp1 $FichierFinal
+		rm $FichierTemp2
+	else	
+		FormaterApache
+		CorrectionApache
+		mv $FinalApache $FichierFinal
+		rm $FichierTemp
+	fi
+	mv $FichierFinal $Annee"/"$Mois
+	echo "Fichier $FichierFinal cree !"
+	
+}
+
+Execution
+
+exit 0
