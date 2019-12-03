@@ -17,7 +17,7 @@ Position(){
 	returnPosition="$"$(($NbFields-$nbFieldSubSection+1))
 }
 
-#Détermination du type de fichier passé (app/iis) en vérifiant la 1ère ligne du fichier puis si fichier de IIS vérification des champs nécessaire et détermination de leur position
+#Détermination du type de fichier passé (app/iis) en vérifiant la 1ère ligne du fichier puis si fichier de type IIS, vérification des champs nécessaire et détermination de leur position
 VerifTypeLog(){
         echo "Vérification du type de fichier..."
 	mainLine=$(grep '^#Fields' $FichierLog)
@@ -61,7 +61,7 @@ TraiterIIS(){
 	#Unicité et retrait des retours à la ligne
 	uniq $FichierLog | tr -d '\r' >$FichierTemp1
   
-	#Tri des champs selon la norme IP Date Instant Url Taille Code Chemin Systeme Navigateur
+	#Tri des champs selon la norme c
 	awk "{ print $ip,$date,$instant,$URI,$size,$codeHTTP,$csReferer,$naviOS}" $FichierTemp1>$FichierTemp2
 
 	#IP au format xxx.xxx.xxx.xxx ou x est un chiffre de 0 à 9
