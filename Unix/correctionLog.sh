@@ -97,8 +97,8 @@ TraiterIIS(){
 }
 
 
-#Formatage du format Apache pour que le fichier de sortie contienne dans cet ordre: IP Date Instant Url Taille Code Chemin Systeme Navigateur
-FormaterApache(){
+#Formatage du format Apache pour que le fichier de sortie contienne dans cet ordre: IP Date Instant Url Taille Code Chemin Systeme Navigateur, puis correction suppression des lignes ayant une IP, date ou un code erroné
+TraiterApache(){
 	#Fichier de retour
 	FichierTemp="tmp1"
 	#Unicité, retrait des crochets, des guillements et des premiers ':' puis formatage
@@ -149,17 +149,16 @@ FormaterApache(){
 		}
 		{print $1, date, $5, $12, $10, $11, $8, $17, navigateur}}' \
 		>$FichierTemp	
-}
 
-#Suppression des lignes ayant une IP, date ou un code erroné
-CorrectionApache(){
-	FinalApache="FinalApache"
-	#IP au format xxx.xxx.xxx.xxx ou x est un chiffre de 0 à 9
-	#Date au format yyyy/MM/dd ou l'année commence par 1 ou 2
-	#Code HTTP au format xxx ou x est un chiffre entre 0 et 9
-	awk '$1 ~ /[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?/' $FichierTemp \
-	| awk '$2 ~ /[1-2][0-9][0-9][0-9]\/[0-9][0-9]?\/[0-9][0-9]?/' \
-	| awk '$6 ~ /[0-9][0-9][0-9]/'>$FinalApache
+		#Suppression des lignes ayant une IP, date ou un code erroné
+
+		FinalApache="FinalApache"
+		#IP au format xxx.xxx.xxx.xxx ou x est un chiffre de 0 à 9
+		#Date au format yyyy/MM/dd ou l'année commence par 1 ou 2
+		#Code HTTP au format xxx ou x est un chiffre entre 0 et 9
+		awk '$1 ~ /[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?/' $FichierTemp \
+		| awk '$2 ~ /[1-2][0-9][0-9][0-9]\/[0-9][0-9]?\/[0-9][0-9]?/' \
+		| awk '$6 ~ /[0-9][0-9][0-9]/'>$FinalApache
 }
 
 #Verification qu'un fichier est donné en paramètre
@@ -193,8 +192,8 @@ Execution(){
 	Annee=$(date +%Y)
 	Mois=$(date +%m)
 	Jour=$(date +%d)
-	FichierFinal=$Annee"-"$Mois"-"$Jour
-	mkdir -p $Annee"/"$Mois
+	FichierFinal=$Annee"-"$Mois"-"$Jour".txt"
+	mkdir -p "FichierLog/"$Annee"/"$Mois
 
 	VerifTypeLog
 
@@ -204,12 +203,11 @@ Execution(){
 		mv $FichierTemp1 $FichierFinal
 		rm $FichierTemp2
 	else	
-		FormaterApache
-		CorrectionApache
+		TraiterApache
 		mv $FinalApache $FichierFinal
 		rm $FichierTemp
 	fi
-	mv $FichierFinal $Annee"/"$Mois
+	mv $FichierFinal "FichierLog/"$Annee"/"$Mois
 	echo "Fichier $FichierFinal cree !"
 	
 }
