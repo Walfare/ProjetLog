@@ -1,4 +1,4 @@
-194.117.220.40 2002/02/28 14:41:42 - 200 907 / Windows Mozilla
-194.17.220.40 2002/01/28 14:41:42 - 200 907 / Windows Mozilla
-154.117.220.40 2002/02/10 14:41:42 http://www.google.fr 200 907 / Windows Mozilla
-132.117.220.40 2002/02/1 14:41:42 http://www.metagenia.com 200 907 /styles/layout2col/css Windows Mozilla
+194.117.220.40 2002/02/28 14:41:42 - 907 200 / Windows Mozilla
+194.17.220.40 2002/01/28 14:41:42 - 907 200 / Windows Mozilla
+154.117.220.40 2002/02/10 14:41:42 http://www.google.fr 907 200 / Windows Mozilla
+132.117.220.40 2002/02/1 14:41:42 http://www.metagenia.com 907 200 /styles/layout2col/css Windows Mozilla

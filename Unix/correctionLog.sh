@@ -147,7 +147,7 @@ TraiterApache(){
 		else{
 			navigateur="erreur"
 		}
-		{print $1, date, $5, $12, $10, $11, $8, $17, navigateur}}' \
+		{print $1, date, $5, $12, $11, $10, $8, $17, navigateur}}' \
 		>$FichierTemp	
 
 		#Suppression des lignes ayant une IP, date ou un code erroné
